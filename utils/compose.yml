@@ -13,7 +13,7 @@ services:
     ports:
       - ${PROXY_HOST:-127.0.0.1}:${PROXY_PORT:-8080}:8080
       - ${PROXY_PORTAL:-127.0.0.1}:8081:8081
-    command: mitmweb --listen-host 0.0.0.0 --no-web-open-browser --mode=reverse:https://${UPSTREAM} --web-host 0.0.0.0 --set web_password=${WEB_PASSWORD:-password} -s /home/mitmproxy/plugin.py
+    command: mitmweb --listen-host 0.0.0.0 --web-host 0.0.0.0 --no-web-open-browser --set web_password=${WEB_PASSWORD:-password} -s /home/mitmproxy/plugin.py --mode=reverse:https://${UPSTREAM}@8080
   portal:
     container_name: portal
     image: nginx
