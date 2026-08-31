@@ -1,0 +1,28 @@
+name: gripper
+
+services:
+  proxy:
+    container_name: proxy
+    image: mitmproxy/mitmproxy
+    volumes:
+      - "./plugin.py:/home/mitmproxy/plugin.py:ro"
+    environment:
+      PYTHONUNBUFFERED: 1
+      PROXY_HOST: ${PROXY_HOST:-127.0.0.1}
+      PROXY_PORT: ${PROXY_PORT:-8080}
+    ports:
+      - ${PROXY_HOST:-127.0.0.1}:${PROXY_PORT:-8080}:8080
+      - ${PROXY_PORTAL:-127.0.0.1}:8081:8081
+    command: mitmweb --listen-host 0.0.0.0 --no-web-open-browser --mode=reverse:https://${UPSTREAM} --web-host 0.0.0.0 --set web_password=${WEB_PASSWORD:-password} -s /home/mitmproxy/plugin.py
+  portal:
+    container_name: portal
+    image: nginx
+    volumes:
+      - "./nginx.conf:/etc/nginx/templates/nginx.conf.template:ro"
+    environment:
+      NGINX_ENVSUBST_OUTPUT_DIR: /etc/nginx
+      UPSTREAM_HOST: ${UPSTREAM_HOST:-proxy}
+      UPSTREAM_PORT: ${UPSTREAM_PORT:-8081}
+      WEB_PASSWORD: ${WEB_PASSWORD:-password}
+    ports:
+      - ${PORTAL_HOST:-127.0.0.1}:80:80
