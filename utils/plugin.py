@@ -63,7 +63,9 @@ class Plugin:
             #     flow.response.text = flow.response.text.replace(netloc, self.request_netloc)
             if host in flow.response.text:
                 logger.info(f"'{host}' found in response text")
-                flow.response.text = flow.response.text.replace(host, self.request_netloc)
+                flow.response.text = flow.response.text.replace(
+                    host, self.request_netloc
+                )
             logger.info(f"{flow.response.text[:1024] = }")
 
 
