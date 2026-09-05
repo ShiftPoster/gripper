@@ -1,10 +1,15 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=80", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "gripper"
-version = "0.0.0"
+requires-python = ">=3.11"
+dynamic = ["version"]
+dependencies = [
+    "requests",
+    "pydantic",
+]
 
 [project.scripts]
 gripper = "gripper.main:main"
