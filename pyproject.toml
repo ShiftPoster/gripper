@@ -13,3 +13,6 @@ dependencies = [
 
 [project.scripts]
 gripper = "gripper.main:main"
+
+[dependency-groups]
+test = ["pytest", "coverage"]
