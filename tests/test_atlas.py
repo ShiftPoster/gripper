@@ -11,5 +11,4 @@ def test_reference():
     assert "ENSG00000010610" == refernce
 
 
-def test_table():
-    ...
+def test_table(): ...

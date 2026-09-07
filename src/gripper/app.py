@@ -29,12 +29,10 @@ class GripperSuperCommand(BaseSettings, MainABC):
         self,
         cmdtype: type[C] = GripperSubcommand,
         is_required: bool = True,
-        cli_exit_on_error: bool | None = None
+        cli_exit_on_error: bool | None = None,
     ) -> C:
         subcommand = get_subcommand(
-            self,
-            is_required=is_required, 
-            cli_exit_on_error=cli_exit_on_error
+            self, is_required=is_required, cli_exit_on_error=cli_exit_on_error
         )
         if not isinstance(subcommand, cmdtype):
             raise TypeError(f"Expected {cmdtype} not {type(subcommand)}")

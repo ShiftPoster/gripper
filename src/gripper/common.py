@@ -11,5 +11,4 @@ class AutoStrEnum(StrEnum):
 
 class MainABC(ABC):
     @abstractmethod
-    def main(self) -> Any:
-        ...
+    def main(self) -> Any: ...
