@@ -25,26 +25,28 @@ class TableTitle(StrEnum):
 
 @dataclass
 class AtlasTable:
-    body: Tag = field(repr=False)
-    title: str = field(init=False)
+    title: str = "MISSING"
     rows: dict[str, str | None] = field(default_factory=dict)
 
-    def __post_init__(self) -> None:
-        self.parse()
-
-    def parse(self):
-        rows = self.body.find_all(HttpTag.table_row)
+    @classmethod
+    def parse(cls, body: Tag):
+        title = "MISSING"
+        parsed = {}
+        rows = body.find_all(HttpTag.table_row)
         for row in rows:
             header = row.find(HttpTag.table_header)
-            # filter empty row
+            # filter empty footer row
             if header and header.text:
-                # if the header has an 'i' link, there will be a lot
-                key = header.text.strip().split("\n", 1).pop(0)
+                # if the header has an 'i' link, ignore that
+                # force formatting with CRLF for easier split
+                text = header.get_text(separator="\r\n", strip=True)
+                key = text.split("\r\n", 1).pop(0)
                 data = row.find(HttpTag.table_data)
                 if data is None:
-                    self.title = key
+                    title = key
                 else:
-                    self.rows[key] = data.text.strip()
+                    parsed[key] = data.get_text(separator=" ", strip=True)
+        return cls(title=title, rows=parsed)
 
 
 class CliAtlas(BaseModel, UpstreamSubcommand):
@@ -53,15 +55,16 @@ class CliAtlas(BaseModel, UpstreamSubcommand):
     @staticmethod
     def find_reference(gene: str, string: str) -> str:
         # <a href="/ENSG00000010610-CD4/interaction" title="<b>
-        pattern = re.escape('<a href="/') + "(.*)" + re.escape(f'-{gene}"')
+        pattern = re.escape('<a href="/') + "([a-zA-Z0-9]+)" + re.escape(f'-{gene}"')
         matches = set(re.findall(pattern, string))
         if 1 != len(matches):
             raise ValueError(matches)
         return matches.pop()
 
     @staticmethod
-    def get_table(soup: BeautifulSoup, title: TableKey | str) -> Tag | None:
+    def get_table(content: str, title: TableKey | str) -> Tag | None:
         body = None
+        soup = BeautifulSoup(content, "html.parser")
         title_element = soup.find(HttpTag.th, string=title)
         if title_element and title_element.parent and title_element.parent.parent:
             body = title_element.parent.parent
@@ -85,7 +88,7 @@ class CliAtlas(BaseModel, UpstreamSubcommand):
                 content = gene_rsp.text
         return content
 
-    def main(self, gene: str, *args, **kwargs):
-        soup = BeautifulSoup(self.request(gene), "html.parser")
-        table_body = self.get_table(soup, TableTitle.expression)
-        return AtlasTable(table_body) if table_body else None
+    def main(self, gene: str, *args, **kwargs) -> AtlasTable | None:
+        content = self.request(gene)
+        table_body = self.get_table(content, TableTitle.expression)
+        return AtlasTable.parse(table_body) if table_body else None

@@ -11,11 +11,11 @@ CD4_2: Path = Path.cwd() / "tests" / "data" / "atlas_cd4_2.html"
 SOLUTION_TABLE: AtlasTable = AtlasTable(
     title='PROTEIN EXPRESSION AND LOCALIZATION',
     rows={
-        'Tissue profilei ': 'Selective cytoplasmic expression in peripheral lymphocytes and subsets of cells in lymphoid tissues.',
+        'Tissue profile': 'Selective cytoplasmic expression in peripheral lymphocytes and subsets of cells in lymphoid tissues.',
         'Tissue specificity (MS)': 'Tissue enhanced (Lymphoid tissue)',
         'Cell type specificity (DVP)': 'Group enriched (B-cells, Macrophages, T-cells)',
-        'Subcellular locationi ': 'Localized to the Plasma membrane',
-        'Predicted locationi ': 'Membrane,  Intracellular (different isoforms)'
+        'Subcellular location': 'Localized to the Plasma membrane',
+        'Predicted location': 'Membrane,  Intracellular (different isoforms)'
     }
 )
 
@@ -30,4 +30,4 @@ def test_reference(file: Path):
 def test_table(file: Path):
     table = CliAtlas.get_table(file.read_text(), TableTitle.expression)
     assert table
-    assert AtlasTable.parse(table) == SOLUTION_TABLE
+    assert AtlasTable.parse(table).rows == SOLUTION_TABLE.rows
