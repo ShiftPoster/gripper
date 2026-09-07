@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import StrEnum
+from typing import Any
 
 
 class AutoStrEnum(StrEnum):
@@ -10,5 +11,5 @@ class AutoStrEnum(StrEnum):
 
 class MainABC(ABC):
     @abstractmethod
-    def main(self):
+    def main(self) -> Any:
         ...
