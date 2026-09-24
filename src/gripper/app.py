@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, ClassVar, TypeVar
 
 from pydantic import HttpUrl
-from pydantic_settings import BaseSettings, get_subcommand
+from pydantic_settings import BaseSettings, SettingsConfigDict, get_subcommand
 
 from gripper.common import MainABC
 
@@ -44,6 +44,18 @@ class GripperSuperCommand(BaseSettings, MainABC):
         subcommand.main(*args, **kwargs)
 
 
+def settings_config(
+    cli_avoid_json: bool = True,
+    **kwargs
+):
+    return SettingsConfigDict(cli_avoid_json=cli_avoid_json, **kwargs)
+
+
 class BaseApp(GripperSuperCommand):
+    model_config = settings_config()
+
+    def model_post_init(self, context: Any) -> None:
+        print(self.model_dump())
+
     def cli_cmd(self):
         self.main()
