@@ -10,7 +10,7 @@ from gripper.atlas import AtlasSettings
 from gripper.excel import ExcelSettings
 
 
-class CliAtlas(GripperSubparser):
+class CliAtlas(BaseModel, GripperSubparser):
     file: CliPositionalArg[Path]
     atlas: AtlasSettings = Field(default_factory=AtlasSettings)
     excel: ExcelSettings = Field(default_factory=ExcelSettings)

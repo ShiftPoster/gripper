@@ -1,4 +1,7 @@
 from enum import StrEnum, auto
+from pathlib import Path
+
+PACKAGE: str = Path(__file__).parent.name
 
 
 class HttpTag(StrEnum):

@@ -2,10 +2,14 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, ClassVar, TypeVar
 
-from pydantic import BaseModel, HttpUrl
+from loguru import logger
+from overhead_log import Level
+from pydantic import AliasChoices, BaseModel, HttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict, get_subcommand
 
 from gripper.common import MainABC
+from gripper.console import configure_logging
+from gripper.constants import PACKAGE
 
 
 class GripperSubparser(MainABC, ABC):
@@ -45,16 +49,24 @@ class GripperSuperCommand(BaseSettings, MainABC):
 
 def settings_config(
     cli_avoid_json: bool = True,
+    cli_kebab_case: bool = True,
     **kwargs
 ):
-    return SettingsConfigDict(cli_avoid_json=cli_avoid_json, **kwargs)
+    return SettingsConfigDict(
+        cli_avoid_json=cli_avoid_json, 
+        cli_kebab_case=cli_kebab_case,
+        **kwargs
+    )
 
 
 class BaseApp(GripperSuperCommand):
-    model_config = settings_config()
-
-    def model_post_init(self, context: Any) -> None:
-        print(self.model_dump())
+    model_config = settings_config(cli_prog_name=PACKAGE)
+    log_level: Level = Level.field(
+        default=Level.DEFAULT,
+        validation_alias=AliasChoices("log_level", "ll"),
+    )
 
     def cli_cmd(self):
+        configure_logging(level=self.log_level)
+        logger.trace(self.model_dump())
         self.main()
