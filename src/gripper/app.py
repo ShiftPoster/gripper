@@ -47,15 +47,9 @@ class GripperSuperCommand(BaseSettings, MainABC):
         subcommand.main(*args, **kwargs)
 
 
-def settings_config(
-    cli_avoid_json: bool = True,
-    cli_kebab_case: bool = True,
-    **kwargs
-):
+def settings_config(cli_avoid_json: bool = True, cli_kebab_case: bool = True, **kwargs):
     return SettingsConfigDict(
-        cli_avoid_json=cli_avoid_json, 
-        cli_kebab_case=cli_kebab_case,
-        **kwargs
+        cli_avoid_json=cli_avoid_json, cli_kebab_case=cli_kebab_case, **kwargs
     )
 
 

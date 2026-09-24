@@ -9,14 +9,14 @@ SEARCH2: Path = Path.cwd() / "tests" / "data" / "atlas_search2.html"
 CD4_1: Path = Path.cwd() / "tests" / "data" / "atlas_cd4_1.html"
 CD4_2: Path = Path.cwd() / "tests" / "data" / "atlas_cd4_2.html"
 SOLUTION_TABLE: AtlasTable = AtlasTable(
-    title='PROTEIN EXPRESSION AND LOCALIZATION',
+    title="PROTEIN EXPRESSION AND LOCALIZATION",
     rows={
-        'Tissue profile': 'Selective cytoplasmic expression in peripheral lymphocytes and subsets of cells in lymphoid tissues.',
-        'Tissue specificity (MS)': 'Tissue enhanced (Lymphoid tissue)',
-        'Cell type specificity (DVP)': 'Group enriched (B-cells, Macrophages, T-cells)',
-        'Subcellular location': 'Localized to the Plasma membrane',
-        'Predicted location': 'Membrane,  Intracellular (different isoforms)'
-    }
+        "Tissue profile": "Selective cytoplasmic expression in peripheral lymphocytes and subsets of cells in lymphoid tissues.",
+        "Tissue specificity (MS)": "Tissue enhanced (Lymphoid tissue)",
+        "Cell type specificity (DVP)": "Group enriched (B-cells, Macrophages, T-cells)",
+        "Subcellular location": "Localized to the Plasma membrane",
+        "Predicted location": "Membrane,  Intracellular (different isoforms)",
+    },
 )
 
 

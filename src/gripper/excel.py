@@ -14,7 +14,7 @@ class FuzzMatch:
     index: int
 
     @classmethod
-    def extract(cls, query: str,  choices: list[str]):
+    def extract(cls, query: str, choices: list[str]):
         return cls(*extractOne(query, choices))
 
 
@@ -39,7 +39,7 @@ class ExcelSettings(BaseModel):
             logger.debug(f"{column_match = }")
 
             if self.rows:
-                genes = sheet[column_match.value][:self.rows]
+                genes = sheet[column_match.value][: self.rows]
             else:
                 genes = sheet[column_match.value]
         return genes
