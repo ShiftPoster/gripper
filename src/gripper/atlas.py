@@ -4,11 +4,14 @@ from enum import StrEnum
 from typing import ClassVar
 
 from bs4 import BeautifulSoup, Tag
-from pydantic import BaseModel, HttpUrl
+from pydantic import HttpUrl
 
-from gripper.app import UpstreamSubcommand
+from gripper.app import UpstreamSettings
 from gripper.constants import HttpTag
+from gripper.errors import AtlasError
 from gripper.session import GripperSession
+
+URLHINT = ("host", "proxy")
 
 
 class TableKey(StrEnum):
@@ -49,46 +52,44 @@ class AtlasTable:
         return cls(title=title, rows=parsed)
 
 
-class CliAtlas(BaseModel, UpstreamSubcommand):
+def find_reference(gene: str, string: str) -> str:
+    # <a href="/ENSG00000010610-CD4/interaction" title="<b>
+    pattern = re.escape('<a href="/') + "([a-zA-Z0-9]+)" + re.escape(f'-{gene}"')
+    matches = set(re.findall(pattern, string))
+    if 1 != len(matches):
+        raise AtlasError(matches)
+    return matches.pop()
+
+
+def get_table(content: str, title: TableKey | str) -> Tag | None:
+    body = None
+    soup = BeautifulSoup(content, "html.parser")
+    title_element = soup.find(HttpTag.th, string=title)
+    if title_element and title_element.parent and title_element.parent.parent:
+        body = title_element.parent.parent
+    return body
+
+
+class AtlasSettings(UpstreamSettings):
     host: ClassVar[HttpUrl] = HttpUrl("https://www.proteinatlas.org")
-
-    @staticmethod
-    def find_reference(gene: str, string: str) -> str:
-        # <a href="/ENSG00000010610-CD4/interaction" title="<b>
-        pattern = re.escape('<a href="/') + "([a-zA-Z0-9]+)" + re.escape(f'-{gene}"')
-        matches = set(re.findall(pattern, string))
-        if 1 != len(matches):
-            raise ValueError(matches)
-        return matches.pop()
-
-    @staticmethod
-    def get_table(content: str, title: TableKey | str) -> Tag | None:
-        body = None
-        soup = BeautifulSoup(content, "html.parser")
-        title_element = soup.find(HttpTag.th, string=title)
-        if title_element and title_element.parent and title_element.parent.parent:
-            body = title_element.parent.parent
-        return body
+    # cachedir
 
     def request(self, gene: str) -> str:
+        gene = gene.upper()
         if self.load:
             content = self.load.read_text()
         else:
-            if self.proxy:
-                # TODO: log message
-                url = self.proxy
-            else:
-                # TODO: log message
-                url = self.host
+            url = self.proxy if self.proxy else self.host
             with GripperSession() as session:
                 session.verify = self.verify
                 search_rsp = session.rget(f"{url}search/{gene}")
-                reference = self.find_reference(gene, search_rsp.text)
+                reference = find_reference(gene, search_rsp.text)
                 gene_rsp = session.rget(f"{url}{reference}")
                 content = gene_rsp.text
         return content
 
-    def main(self, gene: str, *args, **kwargs) -> AtlasTable | None:
+    def search(self, gene: str) -> AtlasTable | None:
+        gene = gene.upper()
         content = self.request(gene)
-        table_body = self.get_table(content, TableTitle.expression)
+        table_body = get_table(content, TableTitle.expression)
         return AtlasTable.parse(table_body) if table_body else None

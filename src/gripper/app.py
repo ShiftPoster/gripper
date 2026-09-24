@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, ClassVar, TypeVar
 
-from pydantic import HttpUrl
+from pydantic import BaseModel, HttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict, get_subcommand
 
 from gripper.common import MainABC
@@ -13,7 +13,7 @@ class GripperSubparser(MainABC, ABC):
     def main(self, *args, **kwargs) -> Any: ...
 
 
-class UpstreamSubparser(GripperSubparser):
+class UpstreamSettings(BaseModel):
     host: ClassVar[HttpUrl]
     verify: bool = True
     proxy: HttpUrl | None = None
