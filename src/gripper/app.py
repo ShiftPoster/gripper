@@ -8,26 +8,25 @@ from pydantic_settings import BaseSettings, SettingsConfigDict, get_subcommand
 from gripper.common import MainABC
 
 
-class GripperSubcommand(MainABC, ABC):
+class GripperSubparser(MainABC, ABC):
     @abstractmethod
     def main(self, *args, **kwargs) -> Any: ...
 
 
-# NOTE: will probably need return abc type for main
-class UpstreamSubcommand(GripperSubcommand):
+class UpstreamSubparser(GripperSubparser):
     host: ClassVar[HttpUrl]
     verify: bool = True
     proxy: HttpUrl | None = None
     load: Path | None = None
 
 
-C = TypeVar("C", bound=GripperSubcommand)
+C = TypeVar("C", bound=GripperSubparser)
 
 
 class GripperSuperCommand(BaseSettings, MainABC):
     def get_subcommand(
         self,
-        cmdtype: type[C] = GripperSubcommand,
+        cmdtype: type[C] = GripperSubparser,
         is_required: bool = True,
         cli_exit_on_error: bool | None = None,
     ) -> C:
@@ -38,8 +37,8 @@ class GripperSuperCommand(BaseSettings, MainABC):
             raise TypeError(f"Expected {cmdtype} not {type(subcommand)}")
         return subcommand
 
-    def handle_subcommand(self, subcommand: GripperSubcommand, *args, **kwargs):
-        if not isinstance(subcommand, GripperSubcommand):
+    def handle_subcommand(self, subcommand: GripperSubparser, *args, **kwargs):
+        if not isinstance(subcommand, GripperSubparser):
             raise TypeError(type(subcommand))
         subcommand.main(*args, **kwargs)
 
