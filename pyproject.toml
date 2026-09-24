@@ -9,9 +9,14 @@ dynamic = ["version"]
 dependencies = [
     "requests",
     "pydantic",
-    "beautifulsoup4>=4.15.0",
     "rich>=15.0.0",
     "pydantic-settings>=2.15.0",
+    "openpyxl>=3.1.5",
+    "loguru>=0.7.3",
+    "beautifulsoup4>=4.15.0",
+    "polars>=1.44.2",
+    "pandas>=3.0.6",
+    "rapidfuzz>=3.14.6",
 ]
 
 [project.scripts]
